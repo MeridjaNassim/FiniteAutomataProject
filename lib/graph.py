@@ -1,5 +1,5 @@
 from graphviz import Digraph
-from automata.fa.dfa import DFA
+from lib.dfa import DFA
 f = Digraph('finite_state_machine', filename='fsm.gv')
 f.attr(rankdir='LR', size='8,5')
 """ 

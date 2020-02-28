@@ -1,6 +1,5 @@
-from automata.fa.dfa import DFA
-from automata.fa.nfa import NFA
-
+from lib.dfa import DFA
+from lib.nfa import NFA
 
 def renameStates(automaton,state_start_char ="Z"):
     count = 0
