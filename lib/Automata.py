@@ -74,3 +74,29 @@ def mirrorEffect(automaton):
                     new_trans[new_state][alpha].add(state) #add the state to existing entry
     return new_trans
 
+def complement(automata,complete=True):
+    if not complete : # if the automata is not complete make it complete otherwise you cant complement it 
+        automata = complete(automata)
+    finals = automata.final_states
+    states = automata.states
+    newfinals = set() # final states of complement 
+    for state in states:
+        if state not in finals:
+            newfinals.add(state) # adding non final states to finals of complement 
+    
+    cmplt =  DFA(
+            states = states,
+            final_states=newfinals,
+            transitions=automata.transitions,
+            initial_state=automata.initial_state,
+            input_symbols=automata.input_symbols
+        )
+    return cmplt       
+def complete(automata):
+    if isinstance(automata,NFA):
+        complete = NFA.copy(automata)
+        complete = DFA.from_nfa(complete)
+        return complete
+    else :
+        complete = DFA.copy(automata)
+        return complete
