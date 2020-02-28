@@ -2,7 +2,41 @@ from lib.dfa import DFA
 from lib.nfa import NFA
 from graphviz import Digraph
 import lib.Automata as aut
-import lib.graph as graph 
+import lib.graph as graph
+nf = NFA(states ={"s0","s1"},
+    initial_state="s0",
+    input_symbols={"a","b"},
+    transitions={
+        "s0": {
+            "a" :{"s1"},
+            "b" :{"s1","s0"}
+        },
+        "s1" : {
+            "a" :{"s0","s1"},
+            
+        }
+    },
+    final_states={"s0"}
+)
+df= DFA.from_nfa(nf)
+print(DFA.from_nfa(nf).transitions)
+
+
+
+""" print("the word : baa is recognized by automate" , df.accepts_input("baaba"))
+aut.renameStates(df,state_start_char="S")
+image = graph.graph(df,graph_name="normal",file_name="./output/normal.gv")
+
+image.view()
+
+mir = aut.mirror(df,renamed=True)
+
+dfa2 = DFA.from_nfa(mir).minify()
+aut.renameStates(dfa2,state_start_char="Z")
+print("the word : aab is recognized by mirror" , dfa2.accepts_input("abaab"))
+image = graph.graph(dfa2,graph_name="mirroir",file_name="./output/mirroir.gv")
+
+image.view() """
 
 def createAutomaton():
     print("Automaton Creation : ")
@@ -111,7 +145,7 @@ def determinize(automaton):
         automaton = DFA.from_nfa(automaton)
     aut.renameStates(automaton,state_start_char="D")   
     print("======================")   
-    print("Automate Determinizé with success")
+    print("Automate Determinized with success")
     print("Adress :",automaton)
     print("states ==>" ,automaton.states)
     print("input symbols==>",automaton.input_symbols)
@@ -126,9 +160,40 @@ def complement(automaton):
     return automaton
 def minify(automaton):
     print("Automaton Minification : ")
+    if(isinstance(automaton,NFA)):
+        automaton = DFA.from_nfa(automaton)
+
+    aut.renameStates(automaton,state_start_char="M")   
+    automaton.minify()
+    print("======================")   
+    print("Automate Minimised with success")
+    print("Adress :",automaton)
+    print("states ==>" ,automaton.states)
+    print("input symbols==>",automaton.input_symbols)
+    print("initial state==>",automaton.initial_state)
+    print("final states==>",automaton.final_states)
+    print("transitions==>",automaton.transitions)
+    print("======================")    
     return automaton
 def mirror(automaton):
     print("Automaton Mirror: ")
+    if isinstance(automaton,NFA):
+        automaton = DFA.from_nfa(automaton)
+        automaton.minify()
+    aut.renameStates(automaton,state_start_char="MRS")
+    automaton = aut.mirror(automaton,renamed=True)
+    if isinstance(automaton,NFA):
+        automaton = DFA.from_nfa(automaton).minify()
+        aut.renameStates(automaton,state_start_char="MR")
+    print("======================")   
+    print("Automate Mirrored with success")
+    print("Adress :",automaton)
+    print("states ==>" ,automaton.states)
+    print("input symbols==>",automaton.input_symbols)
+    print("initial state==>",automaton.initial_state)
+    print("final states==>",automaton.final_states)
+    print("transitions==>",automaton.transitions)
+    print("======================")    
     return automaton
 def accept_word(automaton):
     print("Word Acceptance : ")
@@ -195,3 +260,6 @@ while True:
                 if(automate is None):
                     automate = createAutomaton()
                 automate =operation(automate)
+
+
+
