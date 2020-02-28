@@ -1,6 +1,5 @@
 from lib.dfa import DFA
 from lib.nfa import NFA
-
 def renameStates(automaton,state_start_char ="Z"):
     count = 0
     letter= state_start_char
@@ -76,7 +75,7 @@ def mirrorEffect(automaton):
 
 def complement(automata,complete=True):
     if not complete : # if the automata is not complete make it complete otherwise you cant complement it 
-        automata = complete(automata)
+        automata = completify(automata)
     finals = automata.final_states
     states = automata.states
     newfinals = set() # final states of complement 
@@ -92,7 +91,7 @@ def complement(automata,complete=True):
             input_symbols=automata.input_symbols
         )
     return cmplt       
-def complete(automata):
+def completify(automata):
     if isinstance(automata,NFA):
         complete = NFA.copy(automata)
         complete = DFA.from_nfa(complete)
@@ -100,3 +99,56 @@ def complete(automata):
     else :
         complete = DFA.copy(automata)
         return complete
+def read_from_file(file_name):
+    with open(file_name,"r") as file:
+        lines = file.read().splitlines()
+        input_symbols = lines[0].split(" ") # reading the alphabet
+        input_symbols = set(input_symbols)
+        states = lines[1].split(" ") # reading the states
+        states = set(states)
+        initial_state = lines[2]
+        final_states = set(lines[3].split(" "))
+        transitions = dict()
+        for state in states:
+            transitions[state] = dict()
+            dic = transitions[state]
+            for alpha in input_symbols:
+                dic[alpha] = set()
+
+        #reading transitions 
+        for i in range(4,len(lines)):
+            if(lines[i] ==""):
+                break
+            transition = lines[i].split(";")
+            in_state = transition[0]
+            letter = transition[1]
+            out_state=transition[2]
+            if letter is 'eps':
+                letter = ''
+                transitions[in_state][letter] = set()
+            transitions[in_state][letter].add(out_state)    
+        return NFA(
+            states=states,
+            input_symbols=input_symbols,
+            initial_state=initial_state,
+            final_states=final_states,
+            transitions=transitions
+        )
+def write_to_file(automaton,filename):
+    dummy = DFA.copy(automaton)
+    with open(filename,"w") as file:
+        lines =[]
+        input_symbols = dummy.input_symbols
+        input_symbols = " ".join(input_symbols)
+        states = dummy.states
+        states = " ".join(states)
+        lines.append(input_symbols+"\n")
+        lines.append(states+"\n")
+        lines.append(dummy.initial_state+"\n")
+        lines.append(" ".join(dummy.final_states)+"\n")
+        for state in dummy.transitions:
+            dic = dummy.transitions[state]
+            for alpha in dummy.input_symbols:
+                trans=state+";"+alpha+";"+dic[alpha]
+                lines.append(trans+"\n")
+        file.writelines(lines)        

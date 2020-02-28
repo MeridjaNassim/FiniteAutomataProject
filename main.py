@@ -15,7 +15,7 @@ def createAutomaton():
     input_symbols=set()
     print("Phase 1 : Entering Input Symbols")
     while True:
-        alpha = input("Enter a letter of the input symbols recognized by this Automaton (a , 0 ,! ...) 'exit' to stop->>>")
+        alpha = input("Enter a letter of the input symbols recognized by this Automaton (a , 0 ,! ...) 'exit' to stop \n>>> ")
         if alpha == 'exit':
             break
         else:
@@ -29,17 +29,17 @@ def createAutomaton():
     print("======================")    
     print("Phase 2 : Entering States ...")
     while True:
-        inp=input("Enter a state name (exp : S0,state1) 'exit' to stop entering states-->>>")
+        inp=input("Enter a state name (exp : S0,state1) 'exit' to stop entering states \n>>> ")
         if(inp=='exit'):
             break
         else:
             states.add(inp)
             if not hasInitial:
-                booll = input("Is this state initial for the Automaton (y/n) -->>>")
+                booll = input("Is this state initial for the Automaton (y/n) \n>>> ")
                 if booll is "y":
                     hasInitial = True
                     initial_state=inp
-            booll =input("Is this state final for the Automaton (y/n)-->>>")
+            booll =input("Is this state final for the Automaton (y/n) \n>>> ")
             if booll is "y":
                 final_states.add(inp)
     print("states ==>" ,states)
@@ -60,16 +60,16 @@ def createAutomaton():
         for alpha in input_symbols:
             finished_alpha = False 
             while not finished_alpha:  
-                print("Current input symbol ->>> ",alpha)
+                print("Current input symbol \n>>> ",alpha)
                 if finished_alpha :
                     break; 
-                outstate = input("Enter a existing ending state name ,'exit' to stop entering transitions-->>>")
+                outstate = input("Enter a existing ending state name ,'exit' to stop entering transitions \n>>>")
                 if outstate =="exit":
                     finished_alpha=True
                     continue
         
                 while outstate not in states:
-                    outstate = input("Enter a existing ending state name ,'exit' to stop entering transitions-->>>")
+                    outstate = input("Enter a existing ending state name ,'exit' to stop entering transitions \n>>>")
                     if outstate =="exit":
                         finished_alpha=True
                         break
@@ -79,7 +79,7 @@ def createAutomaton():
                 if outstate == state: # transition boucle
                     transitions[state][alpha].add(state)
                 else:
-                    eps = input("Is this spontanious/epsilon transition (y/n)->>>")
+                    eps = input("Is this spontanious/epsilon transition (y/n) \n>>>")
                     if eps is 'y':
                             if not transitions[state].get('',None):
                                 transitions[state][''] = set()
@@ -175,7 +175,7 @@ def mirror(automaton):
 def accept_word(automaton):
     print("Word Acceptance : ")
     print("=================")
-    word = input("Enter the word you want to test ->>>")
+    word = input("Enter the word you want to test \n>>> ")
     accept = automaton.accepts_input(word)
     if accept :
         print("the word :",word,"is recognized by this automaton")
@@ -189,50 +189,83 @@ def save(automaton):
         automaton = DFA.from_nfa(automaton)
         
     automaton.minify()
-    letter =input("How do you want to name the states ,one word->>>")
+    letter =input("How do you want to name the states ,one word \n>>> ")
     aut.renameStates(automaton,state_start_char=letter) 
-    filename = input("Enter output path (if you add extension add .gr) ->>>")
+    filename = input("Enter output path (if you add extension add .gr) \n>>> ")
     viz = graph.graph(automaton,graph_name="automaton",file_name=filename)   
     viz.view()
     return automaton
-
+def readAutomaton():
+    print("Reading Automaton from file")
+    filename = input("Enter filename/path \n>>> ")
+    automate = aut.read_from_file(filename)
+    return automate
+def show(automaton):
+    print("Automaton Info: ")
+    print("Adress :",automaton)
+    print("states ==>" ,automaton.states)
+    print("input symbols==>",automaton.input_symbols)
+    print("initial state==>",automaton.initial_state)
+    print("final states==>",automaton.final_states)
+    print("transitions==>",automaton.transitions)
+    print("======================")
+    return automaton    
+def write(automaton):
+    print("Writing Automaton to file")
+    letter = input("How would you like to name state \n>>> ")
+    aut.renameStates(automaton,state_start_char=letter)
+    filename = input("Enter save filename/path \n>>> ")
+    automate = aut.write_to_file(automaton,filename)
+    return automate
 operations = {
+    "0": readAutomaton,
     "1" :createAutomaton,
     "2" :determinize,
     "3" :complement,
     "4" :minify,
     "5" :mirror,
     "6" :accept_word,
-    "7" :save,    
+    "7" :save,
+    "8" : show,
+    "9":write    
 }
-keys = {"1","2","3","4","5","6","7","E"}
+
+keys = {"0","1","2","3","4","5","6","7","8","9","E"}
 while True:
+    print("=============================================")
+    print("=============================================")
     print("Hello to Automata Simulator by Meridja Nassim")
-    inp = input("enter any key to continue... (E) to exit-->>>")
+    print("=============================================")
+    print("=============================================")
+    inp = input("enter any key to continue... (E) to exit \n>>> ")
     if(inp =="E"):
         exit(0)
     else :
         automate = None
         while True:
             print("Available operations : ")
-            print("1-Create Automata")
+            print("0-Read Automaton from File")
+            print("1-Create Automaton")
             print("2-Determinization")
             print("3-Complement")
             print("4-Minification")
             print("5-Mirror")
             print("6-Accepts Word")
-            print("7-save automaton")
-            inp=input("Enter desired operation key...(E) to exit-->>>")
+            print("7-save automaton to pdf")
+            print("8-show automaton")
+            print("9-save automata to file")
+            inp=input("Enter desired operation key...(E) to exit \n>>> ")
             while(inp not in keys):
                 print("Please enter correct key :)")
-                inp=input("Enter desired operation key...(E) to exit-->>>")
+                inp=input("Enter desired operation key...(E) to exit \n>>> ")
             if inp is "E":
                 print("Thank you !!")
                 exit(0)
             operation = operations[inp]    
             if inp is "1":
                 automate = createAutomaton()
-                
+            elif inp is "0":
+                automate = readAutomaton()    
             else :
                 if(automate is None):
                     automate = createAutomaton()
