@@ -3,7 +3,7 @@ from lib.nfa import NFA
 from graphviz import Digraph
 import lib.Automata as aut
 import lib.graph as graph
-
+import pandas as pd
 def createAutomaton():
     print("Automaton Creation : ")
     print("======================")
@@ -102,7 +102,8 @@ def createAutomaton():
     print("input symbols==>",nfa.input_symbols)
     print("initial state==>",nfa.initial_state)
     print("final states==>",nfa.final_states)
-    print("transitions==>",nfa.transitions)
+    df = pd.DataFrame(nfa.transitions).transpose()
+    print("transitions table: \n",df)
     print("======================")
     return nfa
 def determinize(automaton):
@@ -117,7 +118,8 @@ def determinize(automaton):
     print("input symbols==>",automaton.input_symbols)
     print("initial state==>",automaton.initial_state)
     print("final states==>",automaton.final_states)
-    print("transitions==>",automaton.transitions)
+    df = pd.DataFrame(automaton.transitions).transpose()
+    print("transitions table: \n",df)
     print("======================")    
     return automaton
 
@@ -131,7 +133,8 @@ def complement(automaton):
     print("input symbols==>",automaton.input_symbols)
     print("initial state==>",automaton.initial_state)
     print("final states==>",automaton.final_states)
-    print("transitions==>",automaton.transitions)
+    df = pd.DataFrame(automaton.transitions).transpose()
+    print("transitions table: \n",df)
     print("======================")    
     
     return automaton
@@ -149,7 +152,8 @@ def minify(automaton):
     print("input symbols==>",automaton.input_symbols)
     print("initial state==>",automaton.initial_state)
     print("final states==>",automaton.final_states)
-    print("transitions==>",automaton.transitions)
+    df = pd.DataFrame(automaton.transitions).transpose()
+    print("transitions table: \n",df)
     print("======================")    
     return automaton
 def mirror(automaton):
@@ -169,9 +173,70 @@ def mirror(automaton):
     print("input symbols==>",automaton.input_symbols)
     print("initial state==>",automaton.initial_state)
     print("final states==>",automaton.final_states)
-    print("transitions==>",automaton.transitions)
+    df = pd.DataFrame(automaton.transitions).transpose()
+    print("transitions table: \n",df)
     print("======================")    
     return automaton
+def union(automaton):
+    print("Union of Two Automaton:")
+    print("1-Read from file")
+    print("2-create Automaton")
+    op = input(">>>")
+    second = None
+    if op is "1":
+        second = readAutomaton()
+    else:
+        second= createAutomaton()
+    print("performing union ...")
+    automaton = aut.union(automaton,second)        
+    print("======================")   
+    print("Automate Union with success")
+    print("Adress :",automaton)
+    print("states ==>" ,automaton.states)
+    print("input symbols==>",automaton.input_symbols)
+    print("initial state==>",automaton.initial_state)
+    print("final states==>",automaton.final_states)
+    df = pd.DataFrame(automaton.transitions)
+    print("transitions table: \n",df)
+    print("======================")    
+    return automaton
+def concat(automaton):
+    print("Concatenation of Two Automaton:")
+    print("1-Read from file")
+    print("2-create Automaton")
+    op = input(">>>")
+    second = None
+    if op is "1":
+        second = readAutomaton()
+    else:
+        second= createAutomaton()
+    print("performing concatenation ...")
+    automaton = aut.concat(automaton,second)        
+    print("======================")   
+    print("Automate Mirrored with success")
+    print("Adress :",automaton)
+    print("states ==>" ,automaton.states)
+    print("input symbols==>",automaton.input_symbols)
+    print("initial state==>",automaton.initial_state)
+    print("final states==>",automaton.final_states)
+    df = pd.DataFrame(automaton.transitions)
+    print("transitions table: \n",df)
+    print("======================")    
+    return automaton
+def iteration(automaton):
+    print("performing iteration...")
+    automaton = aut.iteration(automaton)        
+    print("======================")   
+    print("Automate Mirrored with success")
+    print("Adress :",automaton)
+    print("states ==>" ,automaton.states)
+    print("input symbols==>",automaton.input_symbols)
+    print("initial state==>",automaton.initial_state)
+    print("final states==>",automaton.final_states)
+    df = pd.DataFrame(automaton.transitions)
+    print("transitions table: \n",df)
+    print("======================")    
+    return automaton                   
 def accept_word(automaton):
     print("Word Acceptance : ")
     print("=================")
@@ -199,15 +264,17 @@ def readAutomaton():
     print("Reading Automaton from file")
     filename = input("Enter filename/path \n>>> ")
     automate = aut.read_from_file(filename)
+    show(automate)
     return automate
 def show(automaton):
+    df = pd.DataFrame(automaton.transitions).transpose()
     print("Automaton Info: ")
     print("Adress :",automaton)
     print("states ==>" ,automaton.states)
     print("input symbols==>",automaton.input_symbols)
     print("initial state==>",automaton.initial_state)
     print("final states==>",automaton.final_states)
-    print("transitions==>",automaton.transitions)
+    print("transitions table: \n",df)
     print("======================")
     return automaton    
 def write(automaton):
@@ -225,12 +292,15 @@ operations = {
     "4" :minify,
     "5" :mirror,
     "6" :accept_word,
-    "7" :save,
-    "8" : show,
-    "9":write    
+    "7" :union,
+    "8" : concat,
+    "9":iteration,
+    "10":show,
+    "11":write,
+    "12":save   
 }
 
-keys = {"0","1","2","3","4","5","6","7","8","9","E"}
+keys = {"0","1","2","3","4","5","6","7","8","9","10","11","12","E"}
 while True:
     print("=============================================")
     print("=============================================")
@@ -242,6 +312,7 @@ while True:
         exit(0)
     else :
         automate = None
+        df = None
         while True:
             print("Available operations : ")
             print("0-Read Automaton from File")
@@ -251,9 +322,12 @@ while True:
             print("4-Minification")
             print("5-Mirror")
             print("6-Accepts Word")
-            print("7-save automaton to pdf")
-            print("8-show automaton")
-            print("9-save automata to file")
+            print("7-union")
+            print("8-concactenation")
+            print("9-iteration")
+            print("10-show automaton")
+            print("11-save automata to file")
+            print("12-save automata to pdf")
             inp=input("Enter desired operation key...(E) to exit \n>>> ")
             while(inp not in keys):
                 print("Please enter correct key :)")
@@ -265,7 +339,7 @@ while True:
             if inp is "1":
                 automate = createAutomaton()
             elif inp is "0":
-                automate = readAutomaton()    
+                automate = readAutomaton()   
             else :
                 if(automate is None):
                     automate = createAutomaton()

@@ -152,3 +152,115 @@ def write_to_file(automaton,filename):
                 trans=state+";"+alpha+";"+dic[alpha]
                 lines.append(trans+"\n")
         file.writelines(lines)        
+def union(automaton1,automaton2):
+    initial_state = "s0"
+    finial_states ={"sf"}
+    input_symbols = automaton1.input_symbols.union(automaton2.input_symbols)
+    if(isinstance(automaton1,NFA)):
+        automaton1 = DFA.from_nfa(automaton1)
+    if(isinstance(automaton2,NFA)):
+        automaton2 = DFA.from_nfa(automaton2)    
+    renameStates(automaton1,state_start_char="X")
+    renameStates(automaton2,state_start_char="Z")
+    states = finial_states.union({initial_state},automaton1.states,automaton2.states,finial_states)
+    transitions =dict()
+    transitions[initial_state] = dict()
+    transitions[initial_state][''] = set([automaton1.initial_state,automaton2.initial_state])
+    
+    for state in automaton1.states:
+        transitions[state] = dict()
+        for alpha in input_symbols:
+            transitions[state][alpha] = set()
+        for alpha in automaton1.input_symbols:
+            transitions[state][alpha].add(automaton1.transitions[state][alpha])
+    for state in automaton2.states:
+        transitions[state] = dict()
+        for alpha in input_symbols:
+            transitions[state][alpha] = set()
+        for alpha in automaton2.input_symbols:
+            transitions[state][alpha].add(automaton2.transitions[state][alpha])    
+
+    for state in automaton1.final_states:
+        transitions[state][''] = finial_states
+    for state in automaton2.final_states:
+        transitions[state][''] = finial_states
+    
+    transitions["sf"]=dict()
+    for alpha in input_symbols:
+        transitions["sf"][alpha] = set()
+    
+    return NFA(
+        states = states,
+        transitions = transitions,
+        final_states=finial_states,
+        initial_state=initial_state,
+        input_symbols=input_symbols
+    )
+def concat(automaton1,automaton2):
+    initial_state = "s0"
+    finial_states ={"sf"}
+    input_symbols = automaton1.input_symbols.union(automaton2.input_symbols)
+    if(isinstance(automaton1,NFA)):
+        automaton1 = DFA.from_nfa(automaton1)
+    if(isinstance(automaton2,NFA)):
+        automaton2 = DFA.from_nfa(automaton2)    
+    renameStates(automaton1,state_start_char="X")
+    renameStates(automaton2,state_start_char="Z")
+    states = finial_states.union({initial_state},automaton1.states,automaton2.states,finial_states)
+    transitions =dict()
+    transitions[initial_state] = dict()
+    transitions[initial_state][''] = {automaton1.initial_state}
+    
+    for state in automaton1.states:
+        transitions[state] = dict()
+        for alpha in input_symbols:
+            transitions[state][alpha] = set()
+        for alpha in automaton1.input_symbols:
+            transitions[state][alpha].add(automaton1.transitions[state][alpha])
+    for state in automaton2.states:
+        transitions[state] = dict()
+        for alpha in input_symbols:
+            transitions[state][alpha] = set()
+        for alpha in automaton2.input_symbols:
+            transitions[state][alpha].add(automaton2.transitions[state][alpha])
+
+    for state in automaton1.final_states:
+        transitions[state]['']={automaton2.initial_state} 
+    for state in automaton2.final_states:
+        transitions[state][''] = finial_states
+    transitions["sf"]=dict()
+    for alpha in input_symbols:
+        transitions["sf"][alpha] = set()
+    return NFA(
+        states = states,
+        transitions = transitions,
+        final_states=finial_states,
+        initial_state=initial_state,
+        input_symbols=input_symbols
+    )
+def iteration(automaton):
+      final_states ={"sf"}
+      states = automaton.states.union(final_states)
+      if(isinstance(automaton,NFA)):
+        automaton = DFA.from_nfa(automaton)
+      renameStates(automaton,state_start_char="I")
+      states = automaton.states.union(final_states)  
+      transitions = dict()
+      for state in automaton.states:
+          transitions[state] = dict()
+          for alpha in automaton.input_symbols:
+              transitions[state][alpha] = {automaton.transitions[state][alpha]}
+
+      
+      for state in automaton.final_states:
+            transitions[state]['']=final_states
+      transitions["sf"]=dict()
+      transitions["sf"][''] ={automaton.initial_state}
+
+      return NFA(
+          states=states,
+          final_states= final_states,
+          initial_state=automaton.initial_state,
+          transitions=transitions,
+          input_symbols=automaton.input_symbols
+      )    
