@@ -108,9 +108,12 @@ def createAutomaton():
     return nfa
 def determinize(automaton):
     print("Automaton Determinization : ")
+    
     if(isinstance(automaton,NFA)):
         automaton = DFA.from_nfa(automaton)
-    aut.renameStates(automaton,state_start_char="D")   
+        aut.renameStates(automaton,state_start_char="D")   
+    else :
+        print("Automaton Already deterministic")    
     print("======================")   
     print("Automate Determinized with success")
     print("Adress :",automaton)
@@ -145,6 +148,10 @@ def minify(automaton):
 
     aut.renameStates(automaton,state_start_char="M")   
     automaton.minify()
+    inp = input("Do you want to reduce this automaton (y/n)? \n>>>")
+    if inp is "y":
+        automaton = aut.reduce(automaton)
+        print("Reduction successful !")
     print("======================")   
     print("Automate Minimised with success")
     print("Adress :",automaton)

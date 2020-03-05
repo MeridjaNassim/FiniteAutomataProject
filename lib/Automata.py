@@ -264,3 +264,44 @@ def iteration(automaton):
           transitions=transitions,
           input_symbols=automaton.input_symbols
       )    
+
+def reduce(automaton):
+    puit = None
+    puitFound = False
+    for state in automaton.transitions:
+        puit = state
+        if state not in automaton.final_states:
+            for alpha in automaton.input_symbols :
+                if automaton.transitions[state][alpha] == state :
+                    puitFound = True
+
+                else:
+                    puitFound = False
+                if not puitFound :
+                    break
+        if puitFound:
+            break
+    if puitFound :
+        states = [state for state in automaton.states if  not (state==puit)]
+        states = set(states)
+        final_states = automaton.final_states
+        transitions = automaton.transitions
+        input_sym = automaton.input_symbols
+        del transitions[puit]
+        for state in states:
+            dic = transitions[state]
+            for alpha in input_sym:
+                if dic[alpha] == puit:
+                    dic[alpha] = set()
+                else:
+                    dic[alpha] = {dic[alpha]}
+        initial_state = automaton.initial_state
+        return NFA(
+            states = states,
+            final_states= final_states,
+            transitions = transitions,
+            input_symbols= input_sym,
+            initial_state=initial_state
+        )
+    else :
+        return automaton    
